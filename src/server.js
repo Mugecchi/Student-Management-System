@@ -35,7 +35,7 @@ app.use(express.static(path.join(__dirname, "../dist")));
 
 // ✅ SPA fallback (non-API routes)
 app.get(/^\/(?!api|ws).*/, (req, res) => {
-	res.sendFile(path.join(__dirname, "dist", "index.html"));
+	res.sendFile(path.join(__dirname, "../dist", "index.html"));
 });
 
 // Start server
