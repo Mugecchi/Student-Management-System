@@ -42,4 +42,6 @@ app.get(/^\/(?!api|ws).*/, (req, res) => {
 app.listen(PORT, () => {
 	if (ENV.NODE_ENV === "development") console.log(`Running on Port: ${PORT}`);
 	console.log(`http://localhost:${PORT}`);
+	connectDB();
 });
+export default app
