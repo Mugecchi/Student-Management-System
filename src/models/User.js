@@ -2,15 +2,20 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
 	{
-		email: {
+		username: {
 			type: String,
 			required: true,
 			unique: true,
 		},
+
+		first_name: { type: String, required: true },
+		middle_name: { type: String, default: "" },
+		last_name: {
+			type: String,
+			required: true,
+		},
 		phone: {
 			type: String, // Changed to String for phone numbers
-			required: true,
-			unique: true,
 			validate: {
 				validator: function (v) {
 					return /^\+?[0-9]{7,15}$/.test(v); // Basic phone number validation
@@ -18,23 +23,27 @@ const userSchema = new mongoose.Schema(
 				message: (props) => `${props.value} is not a valid phone number!`,
 			},
 		},
-		first_name: { type: String, required: true },
-		last_name: {
-			type: String,
-			required: true,
-		},
-		username: {
-			type: String,
-			required: true,
-		},
 		password: {
 			type: String,
 			required: true,
 			minlength: 6,
 		},
+		userType: {
+			type: String,
+			enum: ["student", "teacher", "admin", "registrar"],
+			default: "student",
+		},
+		isActive: {
+			type: Boolean,
+			default: false,
+		},
 		profilePic: {
 			type: String,
 			default: "",
+		},
+		last_login: {
+			type: Date,
+			default: null,
 		},
 	},
 	{
