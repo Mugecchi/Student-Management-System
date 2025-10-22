@@ -14,7 +14,7 @@ const PORT = ENV.PORT || 5000;
 // Recreate __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
+await connectDB();
 // Middleware
 app.use(
 	cors({
@@ -42,5 +42,5 @@ app.get(/^\/(?!api|ws).*/, (req, res) => {
 app.listen(PORT, () => {
 	if (ENV.NODE_ENV === "development") console.log(`Running on Port: ${PORT}`);
 	console.log(`http://localhost:${PORT}`);
-	connectDB();
 });
+export default app
