@@ -56,7 +56,6 @@ export const signup = async (req, res) => {
 		});
 		if (newUser) {
 			const savedUser = await newUser.save();
-			generateToken(savedUser._id, res);
 
 			res.status(201).json({
 				_id: savedUser._id,
@@ -143,35 +142,115 @@ export const logout = (_, res) => {
 
 export const updateProfile = async (req, res) => {
 	try {
-		const userID = req.user._id;
-		const { profilePic, first_name, last_name, password } = req.body;
+		const {
+			profilePic,
+			first_name,
+			middle_name,
+			last_name,
+			userType,
+			password,
+			userId, // optional — only admins can set this
+		} = req.body;
+
+		// Determine which user to update
+		const isAdmin = req.user.userType === "admin";
+		const targetUserId = userId && isAdmin ? userId : req.user._id;
+
+		// If admin tries to edit another user but userId is missing
+		if (userId && !isAdmin) {
+			return res
+				.status(403)
+				.json({ message: "Forbidden: only admins can edit other users." });
+		}
 
 		const updateFields = {};
 
+		// Handle profilePic upload
 		if (profilePic) {
-			const uploadResponse = await cloudinary.uploader.upload(profilePic);
-			updateFields.profilePic = uploadResponse.secure_url;
+			if (!profilePic.startsWith("http")) {
+				const uploadResponse = await cloudinary.uploader.upload(profilePic);
+				updateFields.profilePic = uploadResponse.secure_url;
+			} else {
+				updateFields.profilePic = profilePic;
+			}
 		}
+
 		if (first_name) updateFields.first_name = first_name;
+		if (middle_name) updateFields.middle_name = middle_name;
 		if (last_name) updateFields.last_name = last_name;
+
+		// Only admins can change userType
+		if (userType && isAdmin) updateFields.userType = userType;
+
 		if (password) {
 			if (password.length < 6) {
 				return res
 					.status(400)
-					.json({ message: "Password must be at least 6 characters" });
+					.json({ message: "Password must be at least 6 characters long." });
 			}
 			const salt = await bcrypt.genSalt(10);
 			updateFields.password = await bcrypt.hash(password, salt);
 		}
 
 		if (Object.keys(updateFields).length === 0) {
-			return res.status(400).json({ message: "No fields to update" });
+			return res.status(400).json({ message: "No fields to update." });
 		}
 
-		await User.findByIdAndUpdate(userID, updateFields, { new: true });
-		res.status(200).json({ message: "User updated successfully" });
+		const updatedUser = await User.findByIdAndUpdate(
+			targetUserId,
+			updateFields,
+			{
+				new: true,
+				select: "-password", // exclude password from response
+			}
+		);
+
+		if (!updatedUser) {
+			return res.status(404).json({ message: "User not found." });
+		}
+
+		res.status(200).json({
+			message: "User updated successfully.",
+			user: updatedUser,
+		});
 	} catch (error) {
-		console.error("Error in update profile", error);
+		console.error("Error in updateProfile:", error);
+		res
+			.status(500)
+			.json({ message: "Internal Server Error", error: error.message });
+	}
+};
+
+export const getAllUsers = async (req, res) => {
+	try {
+		const users = await User.find();
+		res.status(200).json({ users });
+	} catch (error) {
+		console.error("Error fetching users:", error);
+		res.status(500).json({ message: "Internal Server Error", error });
+	}
+};
+
+export const deactivateUser = async (req, res) => {
+	try {
+		const { userId } = req.params;
+
+		const user = await User.findById(userId);
+		if (!user) {
+			return res.status(404).json({ message: "User not found" });
+		}
+
+		user.isActive = !user.isActive;
+		await user.save();
+
+		res.status(200).json({
+			message: `User ${
+				user.isActive ? "activated" : "deactivated"
+			} successfully`,
+			user,
+		});
+	} catch (error) {
+		console.error("Error deactivating user:", error);
 		res.status(500).json({ message: "Internal Server Error", error });
 	}
 };

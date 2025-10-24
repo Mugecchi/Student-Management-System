@@ -1,11 +1,10 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 // Class Schedule Schema (Links sections, subjects, and teachers)
 const classScheduleSchema = new mongoose.Schema(
 	{
 		sectionId: {
-			type: Schema.Types.ObjectId,
-			ref: "Section",
+			type: String,
 			required: true,
 		},
 		subjectId: {
@@ -21,18 +20,6 @@ const classScheduleSchema = new mongoose.Schema(
 		room: String,
 		schedule: [
 			{
-				dayOfWeek: {
-					type: String,
-					enum: [
-						"Monday",
-						"Tuesday",
-						"Wednesday",
-						"Thursday",
-						"Friday",
-						"Saturday",
-						"Sunday",
-					],
-				},
 				startTime: String,
 				endTime: String,
 			},
@@ -51,3 +38,5 @@ const classScheduleSchema = new mongoose.Schema(
 classScheduleSchema.index({ sectionId: 1, subjectId: 1 }, { unique: true });
 
 const ClassSchedule = mongoose.model("ClassSchedule", classScheduleSchema);
+
+export default ClassSchedule;

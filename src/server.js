@@ -3,6 +3,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import authRoute from "./routes/authRoute.js";
 import registrarRoute from "./routes/registrarRoute.js";
+import scheduleRoute from "./routes/scheduleRoute.js";
+import gradeRoute from "./routes/gradeRoute.js";
 import { connectDB } from "./lib/db.js";
 import { ENV } from "./lib/env.js";
 import cookieParser from "cookie-parser";
@@ -11,11 +13,9 @@ import cors from "cors";
 const app = express();
 const PORT = ENV.PORT || 5000;
 
-// Recreate __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 await connectDB();
-// Middleware
 app.use(
 	cors({
 		origin:
@@ -29,19 +29,18 @@ app.use(cookieParser());
 // Routes
 app.use("/api/auth", authRoute);
 app.use("/api/registrar", registrarRoute);
+app.use("/api/schedule", scheduleRoute);
+app.use("/api/grade", gradeRoute);
 
-// ✅ Serve frontend (dist folder)
 app.use(express.static(path.join(__dirname, "../dist")));
 
-// ✅ SPA fallback (non-API routes)
 app.get(/^\/(?!api|ws).*/, (req, res) => {
 	res.sendFile(path.join(__dirname, "../dist", "index.html"));
 });
 
-// Start server
 app.listen(PORT, () => {
 	if (ENV.NODE_ENV === "development") console.log(`Running on Port: ${PORT}`);
 	console.log(`http://localhost:${PORT}`);
 	connectDB();
 });
-export default app
+export default app;
