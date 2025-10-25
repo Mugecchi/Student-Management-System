@@ -13,7 +13,7 @@ import { authorize, protectRoute } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 router.use(protectRoute);
-router.use(authorize("Registrar", "admin"));
+router.use(authorize("Registrar", "admin", "teacher"));
 router.post("/enroll", studentEnrollment);
 router.post("/academic-year", addAcademicYear);
 router.get("/students", getAllStudents);

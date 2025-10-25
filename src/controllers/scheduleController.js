@@ -40,7 +40,18 @@ export const addTeacherSchedule = async (req, res) => {
 
 export const getAllSchedules = async (req, res) => {
 	try {
-		const schedules = await ClassSchedule.find()
+		// Get user type from request (assuming it's set in middleware)
+		const userType = req.user.userType;
+		const userId = req.user._id;
+
+		let query = {};
+
+		// If not admin or registrar, only show teacher's schedules
+		if (userType !== "admin" && userType !== "registrar") {
+			query.teacherId = userId;
+		}
+
+		const schedules = await ClassSchedule.find(query)
 			.populate({
 				path: "teacherId",
 				model: "User",
@@ -49,6 +60,7 @@ export const getAllSchedules = async (req, res) => {
 			})
 			.populate("sectionId", "name")
 			.populate("subjectId", "subjectName");
+
 		res.json(schedules);
 	} catch (err) {
 		res

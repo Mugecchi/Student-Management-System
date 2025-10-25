@@ -28,7 +28,7 @@ export const menuItems = [
 		path: "students",
 		icon: UserCircle,
 		label: "Students",
-		allowedRoles: ["admin", "registrar"],
+		allowedRoles: ["admin", "registrar", "teacher"],
 	},
 	{
 		icon: School2Icon,
@@ -63,7 +63,7 @@ export const router = createBrowserRouter([
 			},
 			{
 				element: (
-					<Layout allowedRoles={["admin", "registrar"]}>
+					<Layout allowedRoles={["admin", "registrar", "teacher"]}>
 						<Students />
 					</Layout>
 				),

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 // Student Section Enrollment Schema
 const studentSectionSchema = new mongoose.Schema(

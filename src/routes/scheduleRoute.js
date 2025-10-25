@@ -12,13 +12,13 @@ const router = express.Router();
 router.post(
 	"/add",
 	protectRoute,
-	authorize("admin", "Registrar"),
+	authorize("admin", "registrar", "teacher"),
 	addTeacherSchedule
 );
 router.get(
 	"/get",
 	protectRoute,
-	authorize("admin", "Registrar"),
+	authorize("admin", "registrar", "teacher"),
 	getAllSchedules
 );
 router.get("/teachers", getTeachers);

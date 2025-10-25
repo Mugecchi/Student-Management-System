@@ -59,7 +59,7 @@ const LoginForm = () => {
 					</div>
 				)}
 				<div>
-					<label className="auth-input-label">username</label>
+					<label className="auth-input-label">Username</label>
 					<input
 						type="text"
 						className="input"
