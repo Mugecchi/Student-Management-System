@@ -3,6 +3,8 @@ import Student from "../models/Student.js";
 import bcrypt from "bcryptjs/dist/bcrypt.js";
 import AcademicYear from "../models/AcademicYear.js";
 import Subject from "../models/Subject.js";
+import StudentSection from "../models/StudentSection.js";
+
 const generateStudentNumber = async () => {
 	const year = new Date().getFullYear();
 	const prefix = `${String(year).slice(-2)}-`;
@@ -82,6 +84,8 @@ export const studentEnrollment = async (req, res) => {
 	}
 };
 
+// ...existing code...
+
 export const getAllStudents = async (req, res) => {
 	try {
 		const { page = 1, limit = 10, search = "" } = req.query;
@@ -110,11 +114,27 @@ export const getAllStudents = async (req, res) => {
 			.sort({ createdAt: -1 })
 			.lean();
 
-		// Flatten and include both studentId and userId
+		// Get all active StudentSection records for these students
+		const studentIds = students.map((s) => s._id);
+		const sections = await StudentSection.find({
+			studentId: { $in: studentIds },
+			status: "active",
+		})
+			.select("studentId sectionName")
+			.lean();
+
+		// Map studentId to sectionName
+		const sectionMap = {};
+		sections.forEach((sec) => {
+			sectionMap[sec.studentId.toString()] = sec.sectionName;
+		});
+
+		// Flatten and include sectionName
 		const flattened = students.map((s) => ({
-			_id: s._id, // Student’s own ID
-			userId: s.userId?._id || null, // Associated user ID
+			_id: s._id,
+			userId: s.userId?._id || null,
 			studentNumber: s.studentNumber,
+			sectionName: sectionMap[s._id.toString()] || null, // <-- add sectionName here
 			dateOfBirth: s.dateOfBirth,
 			address: s.address,
 			motherName: s.motherName,
@@ -211,68 +231,6 @@ export const deleteStudent = async (req, res) => {
 		console.error("Error deleting student:", error);
 		res.status(500).json({
 			message: "Error deleting student",
-			error: error.message,
-		});
-	}
-};
-
-export const addAcademicYear = async (req, res) => {
-	const { semester, startDate, endDate } = req.body;
-
-	try {
-		// ✅ 1. Validate start and end dates
-		if (
-			new Date(startDate).toDateString() === new Date(endDate).toDateString()
-		) {
-			return res.status(400).json({
-				message: "Start date and end date cannot be the same.",
-			});
-		}
-
-		if (new Date(endDate) < new Date(startDate)) {
-			return res.status(400).json({
-				message: "End date cannot be earlier than start date.",
-			});
-		}
-
-		// ✅ 2. Check if a record with the same start, end, and semester already exists
-		const existing = await AcademicYear.findOne({
-			startDate: new Date(startDate),
-			endDate: new Date(endDate),
-			semester,
-		});
-		if (existing) {
-			return res.status(400).json({
-				message: "This academic year and semester already exist.",
-			});
-		}
-
-		// ✅ 3. Create new academic year (isCurrent defaults to true)
-		const newAcademicYear = new AcademicYear({
-			semester,
-			startDate,
-			endDate,
-		});
-
-		await newAcademicYear.save();
-
-		// ✅ 4. Return success response
-		res.status(201).json({
-			message: "Academic year added successfully",
-			academicYear: newAcademicYear,
-		});
-	} catch (error) {
-		console.error("Error adding academic year:", error);
-
-		// ✅ 5. Handle unique constraint violations
-		if (error.code === 11000) {
-			return res.status(400).json({
-				message: "Duplicate academic year entry.",
-			});
-		}
-
-		res.status(500).json({
-			message: "Error adding academic year",
 			error: error.message,
 		});
 	}

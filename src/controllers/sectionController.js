@@ -1,4 +1,6 @@
+import ClassSchedule from "../models/ClassSchedule.js";
 import Section from "../models/Section.js";
+import Student from "../models/Student.js";
 import StudentSection from "../models/StudentSection.js";
 
 export const createSection = async (req, res) => {
@@ -36,20 +38,22 @@ export const getAllSections = async (req, res) => {
 
 export const AssignStudentToSection = async (req, res) => {
 	try {
-		const { studentId, sectionId } = req.body;
+		const { studentId, sectionName } = req.body;
+		if (!req.user || !req.user._id) {
+			return res.status(401).json({ message: "Unauthorized: User not found" });
+		}
 		const enrolledBy = req.user._id;
+		console.log(enrolledBy);
 		const newEnrollment = new StudentSection({
 			studentId,
-			sectionId,
+			sectionName,
 			enrolledBy,
 		});
 		await newEnrollment.save();
-		res
-			.status(201)
-			.json({
-				message: "Student enrolled successfully",
-				enrollment: newEnrollment,
-			});
+		res.status(201).json({
+			message: "Student enrolled successfully",
+			enrollment: newEnrollment,
+		});
 	} catch (error) {
 		res
 			.status(500)
@@ -59,19 +63,92 @@ export const AssignStudentToSection = async (req, res) => {
 
 export const getStudentsInSection = async (req, res) => {
 	try {
-		const { sectionId } = req.params;
-		const enrollments = await StudentSection.find({ sectionId }).populate(
+		const { sectionName } = req.params;
+		const enrollments = await StudentSection.find({ sectionName }).populate(
 			"studentId",
 			"name studentNumber"
 		);
 		res.status(200).json({ enrollments });
 	} catch (error) {
+		res.status(500).json({
+			message: "Error fetching students in section",
+			error: error.message,
+		});
+	}
+};
+
+export const getAllAssignedSchedule = async (_unused, res) => {
+	try {
+		const schedules = await ClassSchedule.find()
+			.populate("sectionId")
+			.populate("subjectId")
+			.populate("teacherId", "first_name last_name username")
+			.lean();
+
+		// For each schedule, get students in the section
+		const results = await Promise.all(
+			schedules.map(async (schedule) => {
+				const studentSections = await StudentSection.find({
+					sectionName: schedule.sectionId, // sectionId is a string like "G1 - Genesis"
+					status: "active",
+				}).select("studentId");
+
+				const studentIds = studentSections.map((ss) => ss.studentId);
+
+				// Populate student user info
+				const students = await Student.find({ _id: { $in: studentIds } })
+					.populate("userId", "first_name last_name username middle_name phone")
+					.lean();
+
+				return { ...schedule, students };
+			})
+		);
+
+		res.status(200).json({ schedules: results });
+	} catch (error) {
+		res.status(500).json({
+			message: "Error fetching assigned schedules",
+			error: error.message,
+		});
+	}
+};
+export const getStudentsByClassSchedule = async (req, res) => {
+	try {
+		// Find all ClassSchedules assigned to this teacher
+		const schedules = await ClassSchedule.find({ teacherId: req.user._id })
+			.populate("sectionId")
+			.populate("teacherId", "first_name last_name username");
+
+		// For each schedule, get students in the section
+		const results = await Promise.all(
+			schedules.map(async (schedule) => {
+				const studentSections = await StudentSection.find({
+					sectionId: schedule.sectionId._id,
+					status: "active",
+				}).select("studentId");
+
+				const studentIds = studentSections.map((ss) => ss.studentId);
+
+				// Get Student records and populate user info
+				const students = await Student.find({ _id: { $in: studentIds } })
+					.populate("userId", "first_name last_name username middle_name phone")
+					.lean();
+
+				return {
+					scheduleId: schedule._id,
+					section: schedule.sectionId,
+					subject: schedule.subjectId,
+					students,
+					teacher: schedule.teacherId,
+				};
+			})
+		);
+
+		res.status(200).json({ assignedSchedules: results });
+	} catch (error) {
 		res
 			.status(500)
-			.json({
-				message: "Error fetching students in section",
-				error: error.message,
-			});
+			.json({ message: "Error fetching students", error: error.message });
 	}
 };
 // studentId: {

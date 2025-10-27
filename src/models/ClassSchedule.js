@@ -14,7 +14,7 @@ const classScheduleSchema = new mongoose.Schema(
 		},
 		teacherId: {
 			type: Schema.Types.ObjectId,
-			ref: "Teacher",
+			ref: "User",
 			required: true,
 		},
 		room: String,

@@ -9,12 +9,7 @@ import { protectRoute, authorize } from "../middleware/auth.middleware.js";
 const router = express.Router();
 
 // Only allow admin or registrar to add schedules
-router.post(
-	"/add",
-	protectRoute,
-	authorize("admin", "registrar", "teacher"),
-	addTeacherSchedule
-);
+router.post("/add", protectRoute, addTeacherSchedule);
 router.get(
 	"/get",
 	protectRoute,

@@ -12,26 +12,27 @@ const gradeSchema = new mongoose.Schema(
 			ref: "ClassSchedule",
 			required: true,
 		},
-		prelimGrade: {
+		firstQuarterGrade: {
 			type: Number,
 			min: 0,
 			max: 100,
 		},
-		midtermGrade: {
+		secondQuarterGrade: {
 			type: Number,
 			min: 0,
 			max: 100,
 		},
-		finalsGrade: {
+		thirdQuarterGrade: {
 			type: Number,
 			min: 0,
 			max: 100,
 		},
-		finalGrade: {
+		fourthQuarterGrade: {
 			type: Number,
 			min: 0,
 			max: 100,
 		},
+
 		remarks: {
 			type: String,
 			enum: ["Passed", "Failed", "Incomplete", "Dropped"],

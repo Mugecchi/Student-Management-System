@@ -40,14 +40,13 @@ export const addTeacherSchedule = async (req, res) => {
 
 export const getAllSchedules = async (req, res) => {
 	try {
-		// Get user type from request (assuming it's set in middleware)
-		const userType = req.user.userType;
 		const userId = req.user._id;
+		const userType = req.user.userType;
 
 		let query = {};
 
-		// If not admin or registrar, only show teacher's schedules
-		if (userType !== "admin" && userType !== "registrar") {
+		// Only allow teachers to get their own schedules
+		if (userType === "teacher") {
 			query.teacherId = userId;
 		}
 
@@ -55,13 +54,36 @@ export const getAllSchedules = async (req, res) => {
 			.populate({
 				path: "teacherId",
 				model: "User",
-				select: "name userType",
+				select: "first_name last_name username userType",
 				match: { userType: "teacher" },
 			})
 			.populate("sectionId", "name")
-			.populate("subjectId", "subjectName");
+			.populate("subjectId", "subjectName")
+			.lean();
 
-		res.json(schedules);
+		// For each schedule, fetch assigned students in the section
+		const StudentSection = (await import("../models/StudentSection.js"))
+			.default;
+		const Student = (await import("../models/Student.js")).default;
+		const results = await Promise.all(
+			schedules.map(async (schedule) => {
+				const studentSections = await StudentSection.find({
+					sectionId: schedule.sectionId._id,
+					status: "active",
+				}).select("studentId");
+
+				const studentIds = studentSections.map((ss) => ss.studentId);
+
+				// Get Student records and populate user info
+				const students = await Student.find({ _id: { $in: studentIds } })
+					.populate("userId", "first_name last_name username middle_name phone")
+					.lean();
+
+				return { ...schedule, students };
+			})
+		);
+
+		res.json(results);
 	} catch (err) {
 		res
 			.status(500)
@@ -69,7 +91,7 @@ export const getAllSchedules = async (req, res) => {
 	}
 };
 
-export const getTeachers = async (req, res) => {
+export const getTeachers = async (_unused, res) => {
 	try {
 		const teachers = await User.find({ userType: "teacher" });
 		res.status(200).json({ success: true, teachers });

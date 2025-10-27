@@ -8,9 +8,8 @@ const studentSectionSchema = new mongoose.Schema(
 			ref: "Student",
 			required: true,
 		},
-		sectionId: {
-			type: Schema.Types.ObjectId,
-			ref: "Section",
+		sectionName: {
+			type: String,
 			required: true,
 		},
 		enrollmentDate: {
@@ -33,7 +32,6 @@ const studentSectionSchema = new mongoose.Schema(
 	}
 );
 
-// Compound index for unique student-section combination
 studentSectionSchema.index({ studentId: 1, sectionId: 1 }, { unique: true });
 
 const StudentSection = mongoose.model("StudentSection", studentSectionSchema);

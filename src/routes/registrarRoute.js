@@ -1,6 +1,5 @@
 import express from "express";
 import {
-	addAcademicYear,
 	addSubject,
 	deleteStudent,
 	getAcademicYears,
@@ -15,7 +14,6 @@ const router = express.Router();
 router.use(protectRoute);
 router.use(authorize("Registrar", "admin", "teacher"));
 router.post("/enroll", studentEnrollment);
-router.post("/academic-year", addAcademicYear);
 router.get("/students", getAllStudents);
 router.get("/students/:id", getStudentById);
 router.delete("/students/:id", deleteStudent);

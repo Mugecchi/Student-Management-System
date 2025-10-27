@@ -143,6 +143,7 @@ export const logout = (_, res) => {
 export const updateProfile = async (req, res) => {
 	try {
 		const {
+			username,
 			profilePic,
 			first_name,
 			middle_name,
@@ -174,8 +175,10 @@ export const updateProfile = async (req, res) => {
 				updateFields.profilePic = profilePic;
 			}
 		}
+		if (username) updateFields.username = username;
 
 		if (first_name) updateFields.first_name = first_name;
+
 		if (middle_name) updateFields.middle_name = middle_name;
 		if (last_name) updateFields.last_name = last_name;
 
@@ -223,7 +226,7 @@ export const updateProfile = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
 	try {
-		const users = await User.find();
+		const users = await User.find().select("-password");
 		res.status(200).json({ users });
 	} catch (error) {
 		console.error("Error fetching users:", error);
