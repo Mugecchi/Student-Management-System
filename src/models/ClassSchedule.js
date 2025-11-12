@@ -17,7 +17,6 @@ const classScheduleSchema = new mongoose.Schema(
 			ref: "User",
 			required: true,
 		},
-		room: String,
 		schedule: [
 			{
 				startTime: String,
@@ -35,7 +34,6 @@ const classScheduleSchema = new mongoose.Schema(
 );
 
 // Compound index for unique section-subject combination
-classScheduleSchema.index({ sectionId: 1, subjectId: 1 }, { unique: true });
 
 const ClassSchedule = mongoose.model("ClassSchedule", classScheduleSchema);
 

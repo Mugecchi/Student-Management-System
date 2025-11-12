@@ -4,20 +4,46 @@ import User from "../models/User.js";
 // Add a schedule for a teacher
 export const addTeacherSchedule = async (req, res) => {
 	try {
-		const { sectionId, subjectId, teacherId, room, schedule, assignedBy } =
-			req.body;
+		const { sectionId, subjectId, teacherId, schedule } = req.body;
+		const assignedBy = req.user._id;
 
-		// Validate required fields
 		if (!sectionId || !subjectId || !teacherId || !schedule) {
 			return res.status(400).json({ message: "Missing required fields" });
 		}
 
-		// Create new schedule
+		// Robust overlap check for all slots in all schedules
+		const conflicts = await ClassSchedule.find({ teacherId });
+		const newSlots = Array.isArray(schedule) ? schedule : [schedule];
+		let overlapFound = false;
+		for (const sch of conflicts) {
+			const existingSlots = Array.isArray(sch.schedule)
+				? sch.schedule
+				: [sch.schedule];
+			for (const newSlot of newSlots) {
+				for (const slot of existingSlots) {
+					if (slot.day !== newSlot.day) continue;
+					if (
+						newSlot.startTime < slot.endTime &&
+						newSlot.endTime > slot.startTime
+					) {
+						overlapFound = true;
+						break;
+					}
+				}
+				if (overlapFound) break;
+			}
+			if (overlapFound) break;
+		}
+		if (overlapFound) {
+			return res.status(409).json({
+				message: "Teacher already has a schedule that overlaps with this time.",
+			});
+		}
+
 		const newSchedule = new ClassSchedule({
 			sectionId,
 			subjectId,
 			teacherId,
-			room,
 			schedule,
 			assignedBy,
 		});
@@ -40,28 +66,17 @@ export const addTeacherSchedule = async (req, res) => {
 
 export const getAllSchedules = async (req, res) => {
 	try {
-		const userId = req.user._id;
-		const userType = req.user.userType;
-
-		let query = {};
-
-		// Only allow teachers to get their own schedules
-		if (userType === "teacher") {
-			query.teacherId = userId;
-		}
-
-		const schedules = await ClassSchedule.find(query)
+		const schedules = await ClassSchedule.find()
 			.populate({
 				path: "teacherId",
 				model: "User",
-				select: "first_name last_name username userType",
+				select: "first_name last_name username userType ",
 				match: { userType: "teacher" },
 			})
 			.populate("sectionId", "name")
 			.populate("subjectId", "subjectName")
 			.lean();
 
-		// For each schedule, fetch assigned students in the section
 		const StudentSection = (await import("../models/StudentSection.js"))
 			.default;
 		const Student = (await import("../models/Student.js")).default;
