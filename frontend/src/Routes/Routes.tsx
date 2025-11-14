@@ -8,6 +8,7 @@ import {
 	Book,
 	CalendarIcon,
 	ChartBarIcon,
+	GitFork,
 	HomeIcon,
 	UserCircle,
 	Users,
@@ -27,6 +28,7 @@ import type {
 } from "react";
 import type { JSX } from "react/jsx-runtime";
 import Schedule from "@/Pages/Schedule";
+import Guidance from "@/Pages/Guidance";
 
 interface menuItemsType {
 	path?: string;
@@ -97,6 +99,12 @@ export const menuItems: menuItemsType[] = [
 		allowedRoles: ["registrar", "admin", "teacher"],
 	},
 	{
+		path: "guidance",
+		icon: GitFork,
+		label: "Guidance",
+		allowedRoles: ["registrar", "admin", "teacher"],
+	},
+	{
 		path: "users",
 		icon: Users,
 		label: "Users",
@@ -161,6 +169,14 @@ export const router = createBrowserRouter([
 					</Layout>
 				),
 				path: "grades",
+			},
+			{
+				element: (
+					<Layout allowedRoles={["registrar", "admin", "Teacher"]}>
+						<Guidance />
+					</Layout>
+				),
+				path: "guidance",
 			},
 			{
 				element: <Navigate to="/login" replace />,

@@ -6,6 +6,7 @@ import registrarRoute from "./routes/registrarRoute.js";
 import scheduleRoute from "./routes/scheduleRoute.js";
 import gradeRoute from "./routes/gradeRoute.js";
 import sectionRoute from "./routes/sectionRoute.js";
+import guidanceRoute from "./routes/guidanceRoute.js";
 import { connectDB } from "./lib/db.js";
 import { ENV } from "./lib/env.js";
 import cookieParser from "cookie-parser";
@@ -33,6 +34,7 @@ app.use("/api/registrar", registrarRoute);
 app.use("/api/schedule", scheduleRoute);
 app.use("/api/grade", gradeRoute);
 app.use("/api/section", sectionRoute);
+app.use("/api/guidance", guidanceRoute);
 
 app.use(express.static(path.join(__dirname, "../dist")));
 

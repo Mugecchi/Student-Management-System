@@ -22,7 +22,7 @@ const Card: React.FC<Props> = ({ children, className = "", ...props }) => {
 	return (
 		<div className="w-full h-full max-w-full flex-1">
 			<RunningBorder>
-				<div {...props} className={`${baseStyles} ${className}`.trim()}>
+				<div className={`${baseStyles} ${className}`.trim()} {...props}>
 					{children}
 				</div>
 			</RunningBorder>

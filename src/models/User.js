@@ -16,12 +16,6 @@ const userSchema = new mongoose.Schema(
 		},
 		phone: {
 			type: String, // Changed to String for phone numbers
-			validate: {
-				validator: function (v) {
-					return /^\+?[0-9]{7,15}$/.test(v); // Basic phone number validation
-				},
-				message: (props) => `${props.value} is not a valid phone number!`,
-			},
 		},
 		password: {
 			type: String,

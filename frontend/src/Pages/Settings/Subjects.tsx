@@ -51,7 +51,7 @@ const Subjects = ({ refreshTrigger }: Props) => {
 						</tr>
 					) : subjects?.length === 0 ? (
 						<tr>
-							<td colSpan={4}>No academic years found.</td>
+							<td colSpan={4}>No Subject found.</td>
 						</tr>
 					) : (
 						subjects.map((e, i) => (

@@ -30,7 +30,7 @@ const GridCard = ({ col = 1, row = 1, children, className = "" }: Props) => {
 				rowClasses[row] || ""
 			} ${className}`}
 		>
-			<Card>{children}</Card>
+			<Card className={className}>{children}</Card>
 		</div>
 	);
 };

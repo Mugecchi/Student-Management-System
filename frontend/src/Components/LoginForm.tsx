@@ -49,7 +49,9 @@ const LoginForm = () => {
 	return (
 		<div className="w-full max-w-md">
 			<div className="text-center mb-8">
-				<h2 className="text-2xl font-bold text-slate-200 mb-2">Welcome Back</h2>
+				<h2 className="text-2xl font-bold text-slate-200 mb-2">
+					Cauayan Messiah Christian School
+				</h2>
 				<p className="text-slate-400">Login to access to your account</p>
 			</div>
 			<form className="space-y-6" onSubmit={handleSubmit}>

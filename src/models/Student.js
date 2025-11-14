@@ -20,12 +20,12 @@ const studentSchema = new mongoose.Schema(
 		dateOfBirth: { type: Date, required: true },
 		address: { type: String, required: true },
 
-		motherName: { type: String, required: true, default: "N/A" },
-		motherContact: { type: String, required: true },
-		fatherName: { type: String, required: true },
-		fatherContact: { type: String, default: "N/A", required: true },
+		motherName: { type: String, default: "N/A" },
+		motherContact: { type: String },
+		fatherName: { type: String, default: "N/A" },
+		fatherContact: { type: String, default: "N/A" },
 		guardianName: { type: String, default: "" },
-		guardianContact: { type: String, required: true },
+		guardianContact: { type: String },
 
 		yearLevel: {
 			type: Number,
