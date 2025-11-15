@@ -18,8 +18,6 @@ const subjectSchema = new mongoose.Schema(
 		description: String,
 		units: {
 			type: Number,
-			required: true,
-			min: 1,
 		},
 		createdBy: {
 			type: Schema.Types.ObjectId,
