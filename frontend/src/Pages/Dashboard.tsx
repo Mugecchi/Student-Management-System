@@ -3,6 +3,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { api } from "@/lib/axios";
 import GridCard, { Grid } from "@/Components/ui/GridCard";
+import { useAuth } from "@/hooks/AuthContext";
 
 type DashboardData = {
 	studentCount: number;
@@ -35,7 +36,7 @@ const Dashboard = () => {
 	const [data, setData] = useState<DashboardData | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState("");
-
+	const { user } = useAuth();
 	useEffect(() => {
 		setLoading(true);
 		api
@@ -150,49 +151,51 @@ const Dashboard = () => {
 		});
 		saveAs(blob, `report_card_${new Date().toISOString().slice(0, 10)}.xlsx`);
 	};
-
+	const student = user?.userType === "student";
 	return (
 		<Grid>
 			<GridCard>
 				<h1 className="text-3xl font-bold mb-6 text-amber-600">Dashboard</h1>
-				<div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-					<div
-						className=" 
- bg-gray-800 rounded-lg shadow p-4 text-center"
-					>
-						<div className="text-2xl font-bold text-amber-500">
-							{data.studentCount}
+				{!student && (
+					<div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+						<div
+							className=" 
+ 					bg-gray-800 rounded-lg shadow p-4 text-center"
+						>
+							<div className="text-2xl font-bold text-amber-500">
+								{data.studentCount}
+							</div>
+							<div className="text-gray-300">Students</div>
 						</div>
-						<div className="text-gray-300">Students</div>
-					</div>
-					<div
-						className=" 
+						<div
+							className=" 
  bg-gray-800 rounded-lg shadow p-4 text-center"
-					>
-						<div className="text-2xl font-bold text-amber-500">
-							{data.teacherCount}
+						>
+							<div className="text-2xl font-bold text-amber-500">
+								{data.teacherCount}
+							</div>
+							<div className=" text-gray-300">Teachers</div>
 						</div>
-						<div className=" text-gray-300">Teachers</div>
-					</div>
-					<div
-						className=" 
- bg-gray-800 rounded-lg shadow p-4 text-center"
-					>
-						<div className="text-2xl font-bold text-amber-500">
-							{data.subjectCount}
+						<div
+							className=" 
+ 		bg-gray-800 rounded-lg shadow p-4 text-center"
+						>
+							<div className="text-2xl font-bold text-amber-500">
+								{data.subjectCount}
+							</div>
+							<div className=" text-gray-300">Subjects</div>
 						</div>
-						<div className=" text-gray-300">Subjects</div>
-					</div>
-					<div
-						className=" 
- bg-gray-800 rounded-lg shadow p-4 text-center"
-					>
-						<div className="text-2xl font-bold text-amber-500">
-							{data.sectionCount}
+						<div
+							className=" 
+ 					bg-gray-800 rounded-lg shadow p-4 text-center"
+						>
+							<div className="text-2xl font-bold text-amber-500">
+								{data.sectionCount}
+							</div>
+							<div className=" text-gray-300">Sections</div>
 						</div>
-						<div className=" text-gray-300">Sections</div>
 					</div>
-				</div>
+				)}
 				<div className="mb-8">
 					<div className="flex items-center justify-between mb-2">
 						<h2 className="text-xl font-bold text-slate-700">Recent Grades</h2>
@@ -212,23 +215,33 @@ const Dashboard = () => {
 							<table className="min-w-full bg-gray-800 border  border-gray-700 rounded-lg">
 								<thead>
 									<tr className=" bg-amber-900">
-										<th className="py-2 px-3 text-left">Student</th>
-										<th className="py-2 px-3 text-left">Section</th>
+										{!student && (
+											<th className="py-2 px-3 text-left">Student</th>
+										)}
+										{!student && (
+											<th className="py-2 px-3 text-left">Section</th>
+										)}
 										<th className="py-2 px-3 text-left">Subject</th>
 										<th className="py-2 px-3 text-left">1st Qtr</th>
 										<th className="py-2 px-3 text-left">2nd Qtr</th>
 										<th className="py-2 px-3 text-left">3rd Qtr</th>
 										<th className="py-2 px-3 text-left">4th Qtr</th>
-										<th className="py-2 px-3 text-left">Remarks</th>
+										{!student && (
+											<th className="py-2 px-3 text-left">Remarks</th>
+										)}
 									</tr>
 								</thead>
 								<tbody>
 									{data.recentGrades.map((g) => (
 										<tr key={g._id} className="border-t  border-gray-700">
-											<td className="py-2 px-3">
-												{g.studentId?.studentNumber || g.studentId?._id}
-											</td>
-											<td className="py-2 px-3">{g.scheduleId?.sectionId}</td>
+											{!student && (
+												<td className="py-2 px-3">
+													{g.studentId?.studentNumber || g.studentId?._id}
+												</td>
+											)}
+											{!student && (
+												<td className="py-2 px-3">{g.scheduleId?.sectionId}</td>
+											)}
 											<td className="py-2 px-3">
 												{g.scheduleId?.subjectId?.subjectName}
 											</td>
@@ -244,7 +257,7 @@ const Dashboard = () => {
 											<td className="py-2 px-3">
 												{g.fourthQuarterGrade ?? "-"}
 											</td>
-											<td className="py-2 px-3">{g.remarks}</td>
+											{!student && <td className="py-2 px-3">{g.remarks}</td>}
 										</tr>
 									))}
 								</tbody>
@@ -252,37 +265,41 @@ const Dashboard = () => {
 						</div>
 					)}
 				</div>
-				<div className="mb-8">
-					<h2 className="text-xl font-bold mb-2 text-slate-700">
-						Upcoming Schedules
-					</h2>
-					{data.upcomingSchedules.length === 0 ? (
-						<div className="text-gray-500">No upcoming schedules.</div>
-					) : (
-						<ul className="list-disc pl-6">
-							{data.upcomingSchedules.map((s) => (
-								<li key={s._id} className="mb-1">
-									{/* Customize as needed */}
-									{s.sectionId} - {s.subjectId?.subjectName} (
-									{s.schedule && s.schedule[0]
-										? `${s.schedule[0].startTime}-${s.schedule[0].endTime}`
-										: ""}
-									)
-								</li>
-							))}
-						</ul>
-					)}
-				</div>
-				<div>
-					<h2 className="text-xl font-bold mb-2 text-slate-700">
-						Academic Year
-					</h2>
-					{data.currentAcadYear ? (
-						<div className=" text-gray-300">{data.currentAcadYear}</div>
-					) : (
-						<div className="text-gray-500">No academic year set.</div>
-					)}
-				</div>
+				{!student && (
+					<div className="mb-8">
+						<h2 className="text-xl font-bold mb-2 text-slate-700">
+							Upcoming Schedules
+						</h2>
+						{data.upcomingSchedules.length === 0 ? (
+							<div className="text-gray-500">No upcoming schedules.</div>
+						) : (
+							<ul className="list-disc pl-6">
+								{data.upcomingSchedules.map((s) => (
+									<li key={s._id} className="mb-1">
+										{/* Customize as needed */}
+										{s.sectionId} - {s.subjectId?.subjectName} (
+										{s.schedule && s.schedule[0]
+											? `${s.schedule[0].startTime}-${s.schedule[0].endTime}`
+											: ""}
+										)
+									</li>
+								))}
+							</ul>
+						)}
+					</div>
+				)}
+				{!student && (
+					<div>
+						<h2 className="text-xl font-bold mb-2 text-slate-700">
+							Academic Year
+						</h2>
+						{data.currentAcadYear ? (
+							<div className=" text-gray-300">{data.currentAcadYear}</div>
+						) : (
+							<div className="text-gray-500">No academic year set.</div>
+						)}
+					</div>
+				)}
 			</GridCard>
 		</Grid>
 	);

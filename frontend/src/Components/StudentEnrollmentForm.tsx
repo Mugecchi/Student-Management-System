@@ -27,7 +27,23 @@ const StudentEnrollmentForm = () => {
 		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 	) => {
 		const { name, value } = e.target;
-		setFormData((prev) => ({ ...prev, [name]: value }));
+
+		let newValue = value;
+
+		// Apply numeric clamp only for yearLevel
+		if (name === "yearLevel") {
+			// Allow empty string so user can delete
+			if (value === "") {
+				newValue = "";
+			} else {
+				let num = Number(value);
+				if (num < 1) num = 1;
+				if (num > 12) num = 12;
+				newValue = String(num);
+			}
+		}
+
+		setFormData((prev) => ({ ...prev, [name]: newValue }));
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -232,7 +248,9 @@ const StudentEnrollmentForm = () => {
 				</label>
 				<input
 					className="input"
-					type="text"
+					type="number"
+					min={1}
+					max={12}
 					id="yearLevel"
 					name="yearLevel"
 					value={formData.yearLevel}
