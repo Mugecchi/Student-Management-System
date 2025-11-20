@@ -10,8 +10,8 @@ import AcademicYear from "../models/AcademicYear.js";
 export const getDashboardData = async (req, res) => {
 	try {
 		// Total counts
-		const studentCount = await Student.countDocuments();
-		const teacherCount = await User.countDocuments({ role: "teacher" });
+		const studentCount = await User.countDocuments({userType: "student"});
+		const teacherCount = await User.countDocuments({ userType: "teacher" });
 		const subjectCount = await Subject.countDocuments();
 		const sectionCount = await Section.countDocuments();
 
