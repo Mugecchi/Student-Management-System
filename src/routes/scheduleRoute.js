@@ -10,12 +10,7 @@ const router = express.Router();
 
 // Only allow admin or registrar to add schedules
 router.post("/add", protectRoute, addTeacherSchedule);
-router.get(
-	"/get",
-	protectRoute,
-	authorize("admin", "registrar", "teacher"),
-	getAllSchedules
-);
+router.get("/get", protectRoute, getAllSchedules);
 router.get("/teachers", getTeachers);
 
 export default router;

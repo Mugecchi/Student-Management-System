@@ -131,7 +131,7 @@ export const router = createBrowserRouter([
 			},
 			{
 				element: (
-					<Layout allowedRoles={["registrar", "admin", "Teacher"]}>
+					<Layout allowedRoles={["registrar", "admin", "teacher"]}>
 						<Students />
 					</Layout>
 				),
@@ -140,7 +140,7 @@ export const router = createBrowserRouter([
 
 			{
 				element: (
-					<Layout allowedRoles={["registrar", "admin", "Teacher"]}>
+					<Layout allowedRoles={["registrar", "admin", "teacher"]}>
 						<Schedule />
 					</Layout>
 				),
@@ -148,7 +148,7 @@ export const router = createBrowserRouter([
 			},
 			{
 				element: (
-					<Layout allowedRoles={["registrar", "admin", "Teacher"]}>
+					<Layout allowedRoles={["registrar", "admin", "teacher"]}>
 						<SubjectsPage />
 					</Layout>
 				),
@@ -156,7 +156,7 @@ export const router = createBrowserRouter([
 			},
 			{
 				element: (
-					<Layout allowedRoles={["registrar", "admin", "Teacher"]}>
+					<Layout allowedRoles={["registrar", "admin", "teacher"]}>
 						<UsersPage />
 					</Layout>
 				),
@@ -164,7 +164,7 @@ export const router = createBrowserRouter([
 			},
 			{
 				element: (
-					<Layout allowedRoles={["registrar", "admin", "Teacher"]}>
+					<Layout allowedRoles={["registrar", "admin", "teacher"]}>
 						<GradePage />
 					</Layout>
 				),
@@ -172,7 +172,7 @@ export const router = createBrowserRouter([
 			},
 			{
 				element: (
-					<Layout allowedRoles={["registrar", "admin", "Teacher"]}>
+					<Layout allowedRoles={["registrar", "admin", "teacher"]}>
 						<Guidance />
 					</Layout>
 				),

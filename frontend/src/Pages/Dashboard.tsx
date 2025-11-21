@@ -4,6 +4,7 @@ import { saveAs } from "file-saver";
 import { api } from "@/lib/axios";
 import GridCard, { Grid } from "@/Components/ui/GridCard";
 import { useAuth } from "@/hooks/AuthContext";
+import Schedule from "./Schedule";
 
 type DashboardData = {
 	studentCount: number;
@@ -264,6 +265,9 @@ const Dashboard = () => {
 							</table>
 						</div>
 					)}
+					<div className="mt-2">
+						<Schedule />
+					</div>
 				</div>
 				{!student && (
 					<div className="mb-8">
